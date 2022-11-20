@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId      Int           @id @default(autoincrement())
+  first_name  String
+  last_name   String
+  email       String        @unique
+  password    String
+  role        Role          @default(USER)
+  userComment Comment[]
+  reservation Reservation[]
+}
+
+model Comment {
+  commentId    Int    @id @default(autoincrement())
+  comment      String @db.VarChar(255)
+  authorId     Int?
+  authorCommId Int?
+  authorComm   Movie? @relation(fields: [authorCommId], references: [movieId])
+  author       User?  @relation(fields: [authorId], references: [userId])
+}
+
+model Reservation {
+  reservationId     Int       @id @default(autoincrement())
+  reservationNumber Int       @unique
+  reservationData   DateTime  @default(now())
+  userReservation   Int
+  rezervationNumber User      @relation(fields: [userReservation], references: [userId])
+  seatReservation   Seating[]
+}
+
+model Seating {
+  seatingId         Int             @id @default(autoincrement())
+  SeatingNumber     Int
+  seanceFk          Int
+  reservationNum    Int
+  cinemaArmchairFk  Int
+  cinemaArmchair    Cinema_armchair @relation(fields: [cinemaArmchairFk], references: [cinemaArmchairId])
+  reservationNumber Reservation     @relation(fields: [reservationNum], references: [reservationId])
+  seance            Seance          @relation(fields: [seanceFk], references: [seanceId])
+}
+
+model Cinema_armchair {
+  cinemaArmchairId Int         @id @default(autoincrement())
+  row              String      @db.VarChar(5)
+  x                Int
+  y                Int
+  seat             Seating[]
+  chairInHallId    Int
+  chairInHall      Cinema_hall @relation(fields: [chairInHallId], references: [cinemaHallid])
+}
+
+model Seance {
+  seanceId        Int         @id @default(autoincrement())
+  seanceTime      DateTime    @updatedAt
+  movieShowFk     Int
+  cinemaHallFk    Int
+  cinemaHall      Cinema_hall @relation(fields: [cinemaHallFk], references: [cinemaHallid])
+  movieShow       Movie       @relation(fields: [movieShowFk], references: [movieId])
+  seatAtTheSeance Seating[]
+}
+
+model Movie {
+  movieId      Int       @id @default(autoincrement())
+  name         String
+  type         String
+  image        String
+  description  String    @db.VarChar(255)
+  movieComment Comment[]
+  movieSeance  Seance[]
+}
+
+model Cinema_hall {
+  cinemaHallid Int               @id @default(autoincrement())
+  hallNumber   Int
+  movieSeance  Seance[]
+  armchairs    Cinema_armchair[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
