@@ -75,6 +75,7 @@ model Movie {
   name         String
   type         String
   image        String
+  rating       Float
   description  String    @db.VarChar(255)
   movieComment Comment[]
   movieSeance  Seance[]
