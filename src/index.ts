@@ -2,8 +2,14 @@ import * as dotenv from "dotenv";
 import express from "express";
 require("express-async-errors");
 import cors from "cors";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import morgan from "morgan";
+import authRoutes from "./routes/auth";
+import bodyParser from "body-parser";
+import authMiddleware from "./middlewares/is-logged";
+import { errorHandlerMiddleware } from "./middlewares";
+// import { PrismaClient } from "@prisma/client";
+// export const prisma = new PrismaClient();
+import { prisma } from "./lib/prisma-client";
 
 import { Request, Response } from "express";
 
@@ -11,6 +17,10 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.static("public"));
+
+const jsonParser = bodyParser.json();
+app.use(jsonParser);
+app.use(morgan("tiny"));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello Stranger <br /> https://youtu.be/dQw4w9WgXcQ");
@@ -43,6 +53,12 @@ app.get("/movies/random", async (req: Request, res: Response) => {
   console.log(movies);
   res.json(movies);
 });
+
+app.use("/api/auth", authRoutes);
+
+// app.use(authMiddleware);
+
+// app.use(errorHandlerMiddleware);
 
 app.listen(5000, () => {
   console.log("Application started on port 5000!");
