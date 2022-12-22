@@ -87,6 +87,7 @@ const login = async (req: Request, res: Response) => {
           login: user.username,
         },
       },
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       process.env.SESSION_SECRET!
     );
     res.status(200).json({
@@ -102,7 +103,18 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+const profile = async (req: Request, res: Response) => {
+  const user = await prisma.user.findMany({
+    where: {
+      username: req.params.username,
+    },
+  });
+  console.log(user);
+  res.json(user);
+};
+
 export default {
   register,
   login,
+  profile,
 };

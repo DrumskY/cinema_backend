@@ -14,6 +14,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
     const payload = jwt.verify(
       token,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       process.env.SESSION_SECRET!
     ) as JwtTokenPayload;
     // req.user = {
@@ -21,10 +22,14 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     //   usernmame: payload.login,
     // };
     // next();
-    req.userId = payload.user_id;
+    // req.userId = {
+    //   userId: payload.user_id,
+    //   username: payload.login,
+    // };
+    req.username = payload.login;
     next();
   } catch (err) {
-    throw new UnautenticatedError("Authentication invalid!");
+    throw new UnautenticatedError("Authentication invalid!!!");
   }
 };
 

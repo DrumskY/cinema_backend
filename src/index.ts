@@ -4,9 +4,10 @@ require("express-async-errors");
 import cors from "cors";
 import morgan from "morgan";
 import authRoutes from "./routes/auth";
+import authUser from "./routes/user";
+
 import bodyParser from "body-parser";
 import authMiddleware from "./middlewares/is-logged";
-import { errorHandlerMiddleware } from "./middlewares";
 // import { PrismaClient } from "@prisma/client";
 // export const prisma = new PrismaClient();
 import { prisma } from "./lib/prisma-client";
@@ -56,9 +57,9 @@ app.get("/movies/random", async (req: Request, res: Response) => {
 
 app.use("/api/auth", authRoutes);
 
-// app.use(authMiddleware);
+app.use(authMiddleware);
 
-// app.use(errorHandlerMiddleware);
+app.use("/api/auth", authUser);
 
 app.listen(5000, () => {
   console.log("Application started on port 5000!");
