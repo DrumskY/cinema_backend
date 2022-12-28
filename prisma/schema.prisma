@@ -34,7 +34,7 @@ model Comment {
 model Reservation {
   reservationId     Int       @id @default(autoincrement())
   reservationNumber Int       @unique
-  reservationData   DateTime  @default(now())
+  reservationData   String
   userReservation   Int
   rezervationNumber User      @relation(fields: [userReservation], references: [userId])
   seatReservation   Seating[]
@@ -53,7 +53,7 @@ model Seating {
 
 model Cinema_armchair {
   cinemaArmchairId Int         @id @default(autoincrement())
-  row              String      @db.VarChar(5)
+  row              String
   x                Int
   y                Int
   seat             Seating[]
@@ -63,7 +63,8 @@ model Cinema_armchair {
 
 model Seance {
   seanceId        Int         @id @default(autoincrement())
-  seanceTime      DateTime    @updatedAt
+  seanceData      String
+  seanceTime      String
   movieShowFk     Int
   cinemaHallFk    Int
   cinemaHall      Cinema_hall @relation(fields: [cinemaHallFk], references: [cinemaHallid])
@@ -75,7 +76,10 @@ model Movie {
   movieId      Int       @id @default(autoincrement())
   name         String
   type         String
+  movietime    String
+  direction    String
   image        String
+  imagedesc    String
   rating       Float
   description  String    @db.VarChar(255)
   movieComment Comment[]

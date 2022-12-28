@@ -5,6 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import authRoutes from "./routes/auth";
 import authUser from "./routes/user";
+import accessComment from "./routes/comment";
 
 import bodyParser from "body-parser";
 import authMiddleware from "./middlewares/is-logged";
@@ -46,6 +47,24 @@ app.get("/movies/search", async (req: Request, res: Response) => {
     where: {
       name: {
         contains: givenParam,
+      },
+    },
+  });
+  console.log(result);
+  res.json(result);
+});
+
+app.get("/seance/repertoire", async (req: Request, res: Response) => {
+  const givenParam = req.query.searchParam as string;
+  console.log("searching movies which name contain: " + givenParam);
+  const result = await prisma.movie.findMany({
+    include: {
+      movieSeance: {
+        where: {
+          seanceData: {
+            contains: givenParam,
+          },
+        },
       },
     },
   });
@@ -116,6 +135,8 @@ app.get("/movies/random", async (req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 
 app.use(authMiddleware);
+
+app.use("/comment", accessComment);
 
 app.use("/api/auth", authUser);
 
