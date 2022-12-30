@@ -6,6 +6,7 @@ import morgan from "morgan";
 import authRoutes from "./routes/auth";
 import authUser from "./routes/user";
 import accessComment from "./routes/comment";
+import authBooking from "./routes/booking";
 
 import bodyParser from "body-parser";
 import authMiddleware from "./middlewares/is-logged";
@@ -72,6 +73,46 @@ app.get("/seance/repertoire", async (req: Request, res: Response) => {
   res.json(result);
 });
 
+// const seanceSchema = z.object({
+//   id: z.preprocess((val) => val && Number(val), z.number()),
+// });
+
+// app.get("/booking/repertoire", async (req: Request, res: Response) => {
+//   const validation = seanceSchema.safeParse(req.query);
+
+//   if (!validation.success) {
+//     const errorMessage = generateErrorMessage(validation.error.issues);
+//     throw new ValidationError(errorMessage);
+//   }
+//   const { id } = validation.data;
+
+//   console.log("searching seance: " + id);
+//   const result = await prisma.seance.findUnique({
+//     where: {
+//       seanceId: id,
+//     },
+//     include: {
+//       movieShow: {
+//         select: {
+//           name: true,
+//           type: true,
+//           movietime: true,
+//           direction: true,
+//         },
+//       },
+//       seatAtTheSeance: {
+//         select: {
+//           cinemaArmchair: true,
+//           SeatingNumber: true,
+//           reservationNum: true,
+//         },
+//       },
+//     },
+//   });
+//   console.log(result);
+//   res.json(result);
+// });
+
 const movieDetailsSchema = z.object({
   id: z.preprocess((val) => val && Number(val), z.number()),
 });
@@ -120,6 +161,18 @@ app.get("/movies/rating", async (req: Request, res: Response) => {
   res.json(movies);
 });
 
+// app.get("/seanceall", async (req: Request, res: Response) => {
+//   const movies = await prisma.seance.findMany();
+//   console.log(movies);
+//   res.json(movies);
+// });
+
+app.get("/armchaireall", async (req: Request, res: Response) => {
+  const movies = await prisma.cinema_armchair.findMany();
+  console.log(movies);
+  res.json(movies);
+});
+
 app.get("/movies/random", async (req: Request, res: Response) => {
   const randomId = Math.floor(Math.random() * 10) + 1;
   console.log(randomId);
@@ -131,6 +184,8 @@ app.get("/movies/random", async (req: Request, res: Response) => {
   console.log(movies);
   res.json(movies);
 });
+
+app.use("/booking", authBooking);
 
 app.use("/api/auth", authRoutes);
 

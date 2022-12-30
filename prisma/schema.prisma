@@ -33,8 +33,8 @@ model Comment {
 
 model Reservation {
   reservationId     Int       @id @default(autoincrement())
-  reservationNumber Int       @unique
-  reservationData   String
+  reservationNumber Int       @unique @default(autoincrement())
+  reservationData   DateTime  @updatedAt
   userReservation   Int
   rezervationNumber User      @relation(fields: [userReservation], references: [userId])
   seatReservation   Seating[]
@@ -44,21 +44,21 @@ model Seating {
   seatingId         Int             @id @default(autoincrement())
   SeatingNumber     Int
   seanceFk          Int
-  reservationNum    Int
+  reservationNum    Int?
   cinemaArmchairFk  Int
   cinemaArmchair    Cinema_armchair @relation(fields: [cinemaArmchairFk], references: [cinemaArmchairId])
-  reservationNumber Reservation     @relation(fields: [reservationNum], references: [reservationId])
+  reservationNumber Reservation?    @relation(fields: [reservationNum], references: [reservationId])
   seance            Seance          @relation(fields: [seanceFk], references: [seanceId])
 }
 
 model Cinema_armchair {
   cinemaArmchairId Int         @id @default(autoincrement())
   row              String
-  x                Int
-  y                Int
+  x                String
+  y                String
   seat             Seating[]
-  chairInHallId    Int
-  chairInHall      Cinema_hall @relation(fields: [chairInHallId], references: [cinemaHallid])
+  chairinhallid    Int
+  chairInHall      Cinema_hall @relation(fields: [chairinhallid], references: [cinemaHallid])
 }
 
 model Seance {
@@ -88,7 +88,7 @@ model Movie {
 
 model Cinema_hall {
   cinemaHallid Int               @id @default(autoincrement())
-  hallNumber   Int
+  hallnumber   Int
   movieSeance  Seance[]
   armchairs    Cinema_armchair[]
 }
