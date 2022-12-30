@@ -34,7 +34,7 @@ model Comment {
 model Reservation {
   reservationId     Int       @id @default(autoincrement())
   reservationNumber Int       @unique @default(autoincrement())
-  reservationData   DateTime  @updatedAt
+  reservationData   DateTime  @default(now())
   userReservation   Int
   rezervationNumber User      @relation(fields: [userReservation], references: [userId])
   seatReservation   Seating[]

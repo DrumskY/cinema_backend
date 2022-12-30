@@ -49,7 +49,7 @@ const repertoire = async (req: Request, res: Response) => {
 };
 
 const bookingSchema = z.object({
-  userId: z.number(),
+  userId: z.preprocess((val) => val && Number(val), z.number()),
   seanceId: z.number(),
   seatReserved: z.array(z.number()),
 });
@@ -73,25 +73,7 @@ const booking = async (req: Request, res: Response) => {
   );
 
   try {
-    // const seats = await prisma.seating.updateMany({
-    //   where: {
-    //     seanceFk: seanceId,
-    //     cinemaArmchairFk: {
-    //       in: seatReserved,
-    //     },
-    //   },
-    //   data: {
-    //     reservationNum: userId,
-    //   },
-    // });
-
     const seats = await prisma.reservation.updateMany({
-      // where: {
-      //   seanceFk: seanceId,
-      //   cinemaArmchairFk: {
-      //     in: seatReserved,
-      //   },
-      // },
       data: {
         userReservation: userId,
       },
@@ -120,7 +102,6 @@ const booking = async (req: Request, res: Response) => {
     console.log("reservedSeatingIds", reservedSeatingIds);
 
     const booked = await prisma.reservation.create({
-      // data: [{ userReservation: 1 }],
       data: {
         seatReservation: {
           connect: reservedSeatingIds.map((id) => ({
@@ -139,7 +120,49 @@ const booking = async (req: Request, res: Response) => {
   }
 };
 
+const userReservationSchema = z.object({
+  id: z.preprocess((val) => val && Number(val), z.number()),
+});
+
+const userReservation = async (req: Request, res: Response) => {
+  const validation = userReservationSchema.safeParse(req.query);
+
+  if (!validation.success) {
+    const errorMessage = generateErrorMessage(validation.error.issues);
+    throw new ValidationError(errorMessage);
+  }
+  const { id } = validation.data;
+
+  const result = await prisma.reservation.findMany({
+    select: {
+      reservationData: true,
+      seatReservation: {
+        select: {
+          SeatingNumber: true,
+          seance: {
+            select: {
+              seanceData: true,
+              seanceTime: true,
+              movieShow: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    where: {
+      userReservation: id,
+    },
+  });
+  console.log(result);
+  res.json(result);
+};
+
 export default {
   repertoire,
   booking,
+  userReservation,
 };

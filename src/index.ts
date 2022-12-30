@@ -161,6 +161,16 @@ app.get("/movies/rating", async (req: Request, res: Response) => {
   res.json(movies);
 });
 
+app.get("/movies/rateasc", async (req: Request, res: Response) => {
+  const movies = await prisma.movie.findMany({
+    orderBy: {
+      movieId: "desc",
+    },
+  });
+  console.log(movies);
+  res.json(movies);
+});
+
 // app.get("/seanceall", async (req: Request, res: Response) => {
 //   const movies = await prisma.seance.findMany();
 //   console.log(movies);
