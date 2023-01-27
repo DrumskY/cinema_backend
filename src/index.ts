@@ -7,11 +7,10 @@ import authRoutes from "./routes/auth";
 import authUser from "./routes/user";
 import accessComment from "./routes/comment";
 import authBooking from "./routes/booking";
+import adminRouter from "./routes/admin";
 
 import bodyParser from "body-parser";
 import authMiddleware from "./middlewares/is-logged";
-// import { PrismaClient } from "@prisma/client";
-// export const prisma = new PrismaClient();
 import { prisma } from "./lib/prisma-client";
 
 import { Request, Response } from "express";
@@ -202,6 +201,8 @@ app.use("/api/auth", authRoutes);
 app.use(authMiddleware);
 
 app.use("/comment", accessComment);
+
+app.use("/admin", adminRouter);
 
 app.use("/api/auth", authUser);
 

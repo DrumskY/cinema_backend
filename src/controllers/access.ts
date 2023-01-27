@@ -8,7 +8,6 @@ import { generateErrorMessage } from "zod-error";
 const commentSchema = z.object({
   comment: z.string().min(10, { message: "comment is required" }),
   authorId: z.preprocess((val) => val && Number(val), z.number()),
-  //   authorCommId: z.preprocess((val) => val && Number(val), z.number()),
   authorCommId: z.preprocess((val) => val && Number(val), z.number()),
 });
 
