@@ -16,17 +16,6 @@ const addMovieSchema = z.object({
   description: z.string(),
 });
 
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "public");
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, `${file.originalname}`);
-//   },
-// });
-// const upload = multer({ storage });
-// upload.single("image");
-
 const addmovie = async (req: Request, res: Response) => {
   const validation = addMovieSchema.safeParse(req.body);
 
@@ -67,6 +56,65 @@ const addmovie = async (req: Request, res: Response) => {
   }
 };
 
+const setScreeningSchema = z.object({
+  movieId: z.number(),
+  cinemaHallid: z.preprocess((val) => val && Number(val), z.number()),
+  seanceTime: z.string(),
+  seanceData: z.string(),
+});
+
+const setscreening = async (req: Request, res: Response) => {
+  const validation = setScreeningSchema.safeParse(req.body);
+
+  if (!validation.success) {
+    const errorMessage = generateErrorMessage(validation.error.issues);
+    throw new ValidationError(errorMessage);
+  }
+
+  const { seanceData, seanceTime, movieId, cinemaHallid } = validation.data;
+  try {
+    const movie = await prisma.movie.findUnique({ where: { movieId } });
+    if (!movie) {
+      return res.status(404).send({ error: "Movie not found" });
+    }
+    const cinemaHall = await prisma.cinema_hall.findUnique({
+      where: { cinemaHallid },
+    });
+    if (!cinemaHall) {
+      return res.status(404).send({ error: "Cinema hall not found" });
+    }
+    const seance = await prisma.seance.create({
+      data: {
+        seanceData,
+        seanceTime,
+        movieShow: { connect: { movieId } },
+        cinemaHall: { connect: { cinemaHallid } },
+      },
+    });
+    console.log("seance: ", seance);
+    const armchairs = await prisma.cinema_armchair.findMany({
+      where: { chairInHall: { cinemaHallid } },
+    });
+    console.log(armchairs);
+    const seats = armchairs.map((armchair, seatId) => {
+      seatId++;
+      return {
+        SeatingNumber: seatId,
+        seanceFk: seance.seanceId,
+        cinemaArmchairFk: armchair.cinemaArmchairId,
+      };
+    });
+    console.log(seats);
+    const seating = await prisma.seating.createMany({
+      data: seats,
+    });
+    return res.status(200).send({ data: seating });
+  } catch (error) {
+    return res.status(500).json("CustomErr");
+  }
+};
+
 export default {
   addmovie,
+  setscreening,
 };

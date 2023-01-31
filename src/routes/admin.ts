@@ -44,5 +44,6 @@ router.post(
 );
 
 router.post("/addmovie", adminRouter.addmovie);
+router.post("/set-screening", adminRouter.setscreening);
 
 export default router;
